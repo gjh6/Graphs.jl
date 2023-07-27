@@ -394,7 +394,7 @@ export
     # Euclidean graphs
     euclidean_graph,
 
-    # minimum_spanning_trees
+    # spanning_trees
     boruvka_mst,
     kruskal_mst,
     prim_mst,
@@ -403,6 +403,7 @@ export
     is_tree,
     prufer_encode,
     prufer_decode,
+    linked_cut_tree,
 
     # steinertree
     steiner_tree,
@@ -526,7 +527,9 @@ include("community/rich_club.jl")
 include("spanningtrees/boruvka.jl")
 include("spanningtrees/kruskal.jl")
 include("spanningtrees/prim.jl")
+include("spanningtrees/russo.jl")
 include("trees/prufer.jl")
+include("trees/linkedcuttrees.jl")
 include("steinertree/steiner_tree.jl")
 include("biconnectivity/articulation.jl")
 include("biconnectivity/biconnect.jl")
