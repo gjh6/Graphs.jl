@@ -18,6 +18,7 @@ function russo_ust end
 
     ust = dfs_tree(g, 1)
     ust = linked_cut_tree(ust)
+
     # get a path from u to v
     # from v, find parents [v to parent, + parent to next paretn, cum + next weight, ..., sum of the weights]
     # randSamp = rand()*sum of the weights
