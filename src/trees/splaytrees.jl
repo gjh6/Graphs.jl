@@ -57,6 +57,10 @@ function setPathParent!(n::Node, p::AbstractNode)
     n.pathParent = p
 end
 
+function setVertex!(n::Node{T}, v::T) where {T}
+    n.vertex = v
+end
+
 function getParent(n::Node)
     return n.parent
 end
@@ -158,9 +162,10 @@ function traverseSubtree(n::Node, order::String="in-order")
     traverseSubtree!(A,n,order,false)
 
     return A
-    
-
 end
+
+
+
 
 #splay tree modification:
 "Rotates n upwards in the splay tree while maintaining BST rules. Requires a real parent."

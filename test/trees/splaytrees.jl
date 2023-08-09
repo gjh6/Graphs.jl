@@ -1,7 +1,7 @@
 using Graphs.Russo:
 AbstractNode, Node, DummyNode, setParent!, setLeft!, 
 setRight!, getParent, getLeft, getRight, sameNode, childIndex, 
-findSplayRoot, findExtreme, traverseSubtree, rotateUp, splay!, getVertex, linkCutForest, parents
+findSplayRoot, findExtreme, traverseSubtree, rotateUp, splay!, getVertex, linkCutForest, parents, setVertex!
 
 using SimpleTraits
 using Test

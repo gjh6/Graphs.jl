@@ -1,33 +1,49 @@
 """
     link_cut_tree(g)
 
-Returns a link_cut_tree data structure from a graph that is a tree or forest of trees https://dl.acm.org/doi/10.1145/3828.3835
+ Returns a link_cut_tree data structure from a graph that is a rooted, directed tree or forest of trees https://dl.acm.org/doi/10.1145/3828.3835
 
-This function does not apply to directed graphs. Directed trees are sometimes called [polytrees](https://en.wikipedia.org/wiki/Polytree)). 
+ Directed trees are sometimes called [polytrees](https://en.wikipedia.org/wiki/Polytree)). 
 
 """
 function link_cut_tree end
 
-@traitfn function link_cut_tree(g::::(!IsDirected))
-    @assert ne(g) == nv(g) - 1 && is_connected(g)
+@traitfn function link_cut_tree(g::AG::IsDirected) where {U,AG<:AbstractGraph{U}}
+    tree = linkCutTree{U}(nv(g))
 
-    return 
+    for n in vertices(g)
+        for c in neighbors(g,n)
+            link!(tree.nodes[c],tree.nodes[n])
+        end
+    end
+
+    return tree
 end
 
-
 #Link Cut Functions:
-struct linkCutForest{T<:Integer}
+struct linkCutTree{T<:Integer}
     #nodes should be ordered- the first node is vertex 1, etc.
     nodes::AbstractArray{AbstractNode}
 
 
+    function linkCutTree{T}(s::Integer) where {T<:Integer} 
+        f = new(Vector{AbstractNode}(undef,s))
+        for n in 1:length(f.nodes)
+            f.nodes[n] = Node(convert(T,n))
+        end
+        return f
+    end
 
+    function linkCutTree{T}(n::AbstractArray{AbstractNode}) where {T<:Integer}
+        t = new(n)
+        return t
+    end
 
 end
-
+#linkCutForest{T}() where {T<:Integer} = linkCutFoest{T}(Vector{AbstractNode}[])
 
 "Returns a vector of integers, each entry i indicating the index of the parent of the node at index i."
-function parents(f::linkCutForest{T}) where {T<:Integer}
+function parents(f::linkCutTree{T}) where {T<:Integer}
     nodes = copy(f.nodes)
     p = Vector{T}(undef,length(f.nodes))
 
@@ -52,6 +68,22 @@ function parents(f::linkCutForest{T}) where {T<:Integer}
 
 end
 
+"Returns a vector of the current subtree that n is in, in order of depth on the represented tree."
+function findPath(n::Node)
+    return traverseSubtree(findSplayRoot(n))
+end
+
+"returns a vector of the current subtree that the node indexed by i is in in t, 
+in order of depth on the represented tree."
+function findPath(i::Integer, t::linkCutTree)
+    A = traverseSubtree(findSplayRoot(t.nodes[i]))
+    B = Vector{Integer}(undef,length(A))
+    for i in eachindex(A)
+        B[i] = getVertex(A[i])
+    end
+    return B
+end
+
 "Replaces the right subtree of n with r, or with nothing if r is unspecified.
 the old right subtree of n is moved to a separate auxillary tree and tracked with a path-parent pointer."
 function replaceRightSubtree!(n::Node, r::AbstractNode=DummyNode{typeof(getVertex(n))}())
@@ -68,6 +100,7 @@ function replaceRightSubtree!(n::Node, r::AbstractNode=DummyNode{typeof(getVerte
 
 end
 
+
 "Moves n to the tree at the root of the link-cut tree using splay tree operations.
 Preserves the represented tree, and n will be the deepest node on the preferred path."
 function expose!(n::Node)
@@ -82,6 +115,23 @@ function expose!(n::Node)
         splay!(n)
     end
 end
+
+"Links two represented trees, where u is the root of one represented tree and becomes a child of v."
+function link!(u::Node, v::Node)
+
+    expose!(u)
+    if getLeft(u) isa Node
+        throw(ArgumentError("u must be the root of its represented tree to link."))
+    end
+
+    expose!(v)
+    if getParent(u) isa Node || getPathParent(u) isa Node
+        throw(ArgumentError("Can't link two nodes in the same represented tree"))
+    end
+
+    setPathParent!(u,v)
+end
+
 
 
 # function undirected_tree(parents::AbstractVector{T}) where {T<:Integer}
