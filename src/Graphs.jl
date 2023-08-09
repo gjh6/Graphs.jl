@@ -403,7 +403,6 @@ export
     is_tree,
     prufer_encode,
     prufer_decode,
-    linked_cut_tree,
 
     # steinertree
     steiner_tree,
@@ -527,6 +526,7 @@ include("community/rich_club.jl")
 include("spanningtrees/boruvka.jl")
 include("spanningtrees/kruskal.jl")
 include("spanningtrees/prim.jl")
+include("spanningtrees/Russo/Russo.jl")
 include("trees/prufer.jl")
 include("steinertree/steiner_tree.jl")
 include("biconnectivity/articulation.jl")

@@ -28,6 +28,5 @@ include("vf2.jl") # Julian implementation of VF2 algorithm
 include("Parallel/Parallel.jl")
 include("Traversals/Traversals.jl")
 include("ShortestPaths/ShortestPaths.jl")
-include("UniformSpanningTrees/UniformSpanningTrees.jl")
 
 end

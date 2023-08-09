@@ -1,20 +1,4 @@
 """
-    linked_cut_tree(g)
-
-Returns a linked_cut_tree data structure from a graph that is a tree or forest of trees https://dl.acm.org/doi/10.1145/3828.3835
-
-This function does not apply to directed graphs. Directed trees are sometimes called [polytrees](https://en.wikipedia.org/wiki/Polytree)). 
-
-"""
-function linked_cut_tree end
-
-@traitfn function linked_cut_tree(g::::(!IsDirected))
-    @assert ne(g) == nv(g) - 1 && is_connected(g)
-
-    return 
-end
-
-"""
     AbstractNode
 
 An abstract type with two subtypes: Node and DummyNode. DummyNode will be a singleton type,
@@ -62,35 +46,35 @@ function setChild!(n::Node, i::Int, c::AbstractNode)
 end
 
 function setLeft!(n::Node, l::AbstractNode)
-setChild!(n,1,l)
+    setChild!(n,1,l)
 end
 
 function setRight!(n::Node, r::AbstractNode)
-setChild!(n,2,r)
+    setChild!(n,2,r)
 end
 
 function setPathParent!(n::Node, p::AbstractNode)
-n.pathParent = p
+    n.pathParent = p
 end
 
 function getParent(n::Node)
-return n.parent
+    return n.parent
 end
 
 function getChild(n::Node,i::Int)
-return n.children[i]
+    return n.children[i]
 end
 
 function getLeft(n::Node)
-return getChild(n,1)
+    return getChild(n,1)
 end
 
 function getRight(n::Node)
-return getChild(n,2)
+    return getChild(n,2)
 end
 
 function getPathParent(n::Node)
-return n.pathParent
+    return n.pathParent
 end
 
 function getVertex(n::Node)
@@ -110,7 +94,7 @@ end
 
 "Returns the index n has in its parent's vector of children. Requires a real parent."
 function childIndex(n::Node)
-return findfirst(x->sameNode(n,x),getParent(n).children)
+    return findfirst(x->sameNode(n,x),getParent(n).children)
 end
 
 function findSplayRoot(n::Node)
@@ -245,53 +229,3 @@ end
 struct DummyNode{T} <: AbstractNode{T} end
 
 
-
-#Link Cut Functions:
-
-struct linkCutForest{T<:Integer}
-    #nodes should be ordered- the first node is vertex 1, etc.
-    nodes::AbstractArray{AbstractNode}
-
-
-
-
-end
-
-
-"Returns a vector of integers, each entry i indicating the index of the parent of the node at index i."
-function parents(f::linkCutForest{T}) where {T<:Integer}
-    nodes = copy(f.nodes)
-    p = Vector{T}(undef,length(f.nodes))
-
-    while length(nodes) > 0
-        r = findSplayRoot(nodes[1])
-        s = traverseSubtree(r)
-        if getPathParent(r) isa Node
-            p[getVertex(s[1])] = getVertex(getPathParent(r))
-        else
-            p[getVertex(s[1])] = getVertex(s[1])
-        end
-        
-        for i in 2:lastindex(s)
-            p[getVertex(s[i])] = getVertex(s[i-1])
-        end
-
-        setdiff!(nodes,s)        
-
-    end
-
-    return p
-
-end
-
-
-# function undirected_tree(parents::AbstractVector{T}) where {T<:Integer}
-#     n = T(length(parents))
-#     t = Graph{T}(n)
-#     for (v, u) in enumerate(parents)
-#         if u > zero(T) && u != v
-#             add_edge!(t, u, v)
-#         end
-#     end
-#     return t
-# end
