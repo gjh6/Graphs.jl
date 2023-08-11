@@ -3,7 +3,7 @@ using Graphs.Russo:
 AbstractNode, Node, DummyNode, setParent!, setLeft!, 
 setRight!, getParent, getLeft, getRight, sameNode, childIndex, 
 findSplayRoot, findExtreme, traverseSubtree, rotateUp, splay!, getVertex, linkCutTree, parents,
-replaceRightSubtree!, expose!, setVertex!, link!, link_cut_tree, findPath
+replaceRightSubtree!, expose!, setVertex!, link!, link_cut_tree, findPath, cut!, evert!
 
 using SimpleTraits
 using Test
@@ -54,6 +54,18 @@ Test.@testset "Link-Cut expose and reversal" begin
     Test.@test findSplayRoot(x.nodes[7]) == x.nodes[7]
     Test.@test findSplayRoot(x.nodes[8]) == x.nodes[8]
     Test.@test parents(x) == [1,1,2,3,4,5,6,4]
+
+    #testing evert 
+    expose!(x.nodes[7])
+    evert!(x.nodes[8])
+
+    Test.@test parents(x) == [2,3,4,8,4,5,6,8]
+
+    Test.@test findPath(x.nodes[1])[1] == x.nodes[8]
+    B = findPath(x.nodes[7])
+    Test.@test findPath(x.nodes[7])[1] == x.nodes[5]
+
+
 
 end
 
@@ -146,5 +158,33 @@ Test.@testset "Link-Cut link, constructors, and cut" begin
 
     Test.@test findPath(wikiTree.nodes[6]) == [wikiTree.nodes[3],wikiTree.nodes[6],wikiTree.nodes[11],wikiTree.nodes[13]]
     Test.@test findPath(6,wikiTree) == [3,6,11,13]
+
+
+    #now, to test cut, individually cut every edge in the tree-- every node will be its own parent.
+    for i in 2:15
+        cut!(wikiTree.nodes[i])
+    end
+
+    Test.@test parents(wikiTree) == [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+
+    #and rebuild the tree to confirm it works.
+    
+    link!(wikiTree.nodes[2],wikiTree.nodes[1])
+    link!(wikiTree.nodes[3],wikiTree.nodes[1])
+    link!(wikiTree.nodes[4],wikiTree.nodes[1])
+    link!(wikiTree.nodes[5],wikiTree.nodes[2])
+    link!(wikiTree.nodes[6],wikiTree.nodes[3])
+    link!(wikiTree.nodes[7],wikiTree.nodes[4])
+    link!(wikiTree.nodes[8],wikiTree.nodes[4])
+    link!(wikiTree.nodes[9],wikiTree.nodes[4])
+    link!(wikiTree.nodes[10],wikiTree.nodes[6])
+    link!(wikiTree.nodes[11],wikiTree.nodes[6])
+    link!(wikiTree.nodes[12],wikiTree.nodes[10])
+    link!(wikiTree.nodes[13],wikiTree.nodes[11])
+    link!(wikiTree.nodes[14],wikiTree.nodes[12])
+    link!(wikiTree.nodes[15],wikiTree.nodes[12])
+
+    Test.@test parents(wikiTree) == [1,1,1,1,2,3,4,4,4,6,6,10,11,12,12]
+
 
 end

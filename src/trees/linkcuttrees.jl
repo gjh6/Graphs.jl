@@ -73,8 +73,8 @@ function findPath(n::Node)
     return traverseSubtree(findSplayRoot(n))
 end
 
-"returns a vector of the current subtree that the node indexed by i is in in t, 
-in order of depth on the represented tree."
+"returns a vector of the integer labels for the current subtree that the node indexed by i is in,
+ in the tree t, in order of depth on the represented tree."
 function findPath(i::Integer, t::linkCutTree)
     A = traverseSubtree(findSplayRoot(t.nodes[i]))
     B = Vector{Integer}(undef,length(A))
@@ -132,7 +132,28 @@ function link!(u::Node, v::Node)
     setPathParent!(u,v)
 end
 
+"Cuts the node u away from its parent in the represented tree.
+u cannot be the root of the represented tree."
+function cut!(u::Node)
+    expose!(u)
 
+    if !(getLeft(u) isa Node)
+        throw(ArgumentError("can't cut the root of the represented tree."))
+    end
+
+    v = getLeft(u)
+
+    setParent!(v,DummyNode{typeof(getVertex(u))}())
+    setLeft!(u,DummyNode{typeof(getVertex(u))}())
+
+end
+
+"Changes the root of the represented tree to u."
+function evert!(u::Node)
+    expose!(u)
+
+    u.reversed = true
+end
 
 # function undirected_tree(parents::AbstractVector{T}) where {T<:Integer}
 #     n = T(length(parents))
