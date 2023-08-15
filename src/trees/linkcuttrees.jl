@@ -7,7 +7,6 @@
 
 """
 function link_cut_tree end
-
 @traitfn function link_cut_tree(g::AG::IsDirected) where {U,AG<:AbstractGraph{U}}
     tree = linkCutTree{U}(nv(g))
 

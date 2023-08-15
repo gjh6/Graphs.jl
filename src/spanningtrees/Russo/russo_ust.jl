@@ -6,23 +6,44 @@ of an undirected graph `g` with optional distance matrix (or weights) `distmx` u
 
 ### Optional Arguments
 - `steps=nothing`: gives the heuristic presented in the reference above otherwise specify with an int
+- `distmx=weights(g)`: matrix of weights of g
+- `startingTree=dfs_tree(g)`: any tree (can be directed), which will be modified as in Russo's algorithm.
 """
+
 function russo_ust end
-# see https://github.com/mauro3/SimpleTraits.jl/issues/47#issuecomment-327880153 for syntax
 @traitfn function russo_ust(
-    g::AG::(!IsDirected), distmx::AbstractMatrix{T}=weights(g); steps::Union{Nothing, Int}
-) where {T<:Real,U,AG<:AbstractGraph{U}}
-    if steps !== nothing
+    g::AG; steps::Union{Nothing, Int}=nothing, distmx::Union{AbstractMatrix{T}, Graphs.DefaultDistance}=weights(g),
+    startingTree::AbstractGraph{U}=dfs_tree(g,1)
+) where {T,U,AG<:AbstractGraph{U}; !IsDirected{AG}}
+
+
+    if is_cyclic(startingTree)
+        throw(ArgumentError("startingTree must be a tree"))
+    end
+
+    if !is_directed(startingTree)
+        startingTree = dfs_tree(startingTree, 1)
+    end
+
+    if steps === nothing
         steps = nv(g)^1.3 + ne(g)
     end
 
-    ust = dfs_tree(g, 1)
-    ust = linked_cut_tree(ust)
+    b = distmx
+
+    ust = link_cut_tree(startingTree)
 
     # get a path from u to v
     # from v, find parents [v to parent, + parent to next paretn, cum + next weight, ..., sum of the weights]
     # randSamp = rand()*sum of the weights
     # binary search to find interval
-    ust = Vector{edgetype(g)}()
-    return ust
+
+    edgeVector = edgetype(g)[]
+    parents = Russo.parents(ust)
+    for edge in edges(g)
+        if parents[dst(edge)] == src(edge)
+            append!(edgeVector,[edge])
+        end
+    end
+    return edgeVector
 end
