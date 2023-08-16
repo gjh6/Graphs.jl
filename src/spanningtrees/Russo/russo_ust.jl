@@ -18,6 +18,10 @@ function russo_ust end
     startingTree=dfs_tree(g,1), rng::AbstractRNG=MersenneTwister()
 ) where {T<:Real,U,AG<:AbstractGraph{U}}
 
+    if ne(startingTree) != nv(startingTree)-1
+        throw(ArgumentError("startingTree must be a spanning tree, and g must be connected."))
+    end
+
     if is_cyclic(startingTree)
         throw(ArgumentError("startingTree must be a tree"))
     end
