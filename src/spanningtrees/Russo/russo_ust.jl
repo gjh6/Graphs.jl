@@ -30,8 +30,12 @@ function russo_ust end
         startingTree = dfs_tree(startingTree, 1)
     end
 
+    if !(distmx == transpose(distmx))
+        throw(ArgumentError("distmx must be a symmetric matrix."))
+    end
+
     if steps === nothing
-        steps = round(nv(g)^1.3 + ne(g))
+        steps = 10*(round(nv(g)^1.3 + ne(g)))
     end
 
     ust = link_cut_tree(startingTree)
@@ -57,7 +61,7 @@ function russo_ust end
         pathWeights = Float64[0]
         cumWeight = 0
         for n in 2:lastindex(D)
-            w = distmx[Russo.getVertex(D[n])]
+            w = distmx[Russo.getVertex(D[n-1]),Russo.getVertex(D[n])]
             cumWeight += (1/w)
             append!(pathWeights,[cumWeight])
         end
