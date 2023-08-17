@@ -141,10 +141,10 @@ Test.@testset "distribution" begin
     
     #calculate chi-squared
     chi_squared = 0
-    chi_squared += ((treeCounter['A']-1881)/1881)
-    chi_squared += ((treeCounter['B']-2194)/2194)
-    chi_squared += ((treeCounter['C']-2633)/2633)
-    chi_squared += ((treeCounter['D']-3292)/3292)
+    chi_squared += (((treeCounter['A']-1881)^2)/1881)
+    chi_squared += (((treeCounter['B']-2194)^2)/2194)
+    chi_squared += (((treeCounter['C']-2633)^2)/2633)
+    chi_squared += (((treeCounter['D']-3292)^2)/3292)
 
     #for now, test for significant deviation with 3 degrees of freedom, with significance .05
     Test.@test chi_squared < 3.182
