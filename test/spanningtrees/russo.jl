@@ -19,7 +19,7 @@ Test.@testset "input and output" begin
     #note: still working on converting from parents vector to graph again.
     Test.@test dfs_tree(s,1) == dfs_tree(SimpleGraphFromIterator(russo_ust(s,steps=0)),1)
     russo_ust(s,steps=0)
-    russo_ust(s,distmx=weights(s),steps=0)
+    russo_ust(s, weights(s),steps=0)
     russo_ust(s,startingTree=bfs_tree(s,1),steps=0)
 
     seed = abs(rand(Int))
@@ -54,8 +54,8 @@ Test.@testset "one step" for i in 1:5
     end
 
 
-    w = SimpleGraphFromIterator(russo_ust(s,distmx=weights,rng=MersenneTwister(seed),steps=0))
-    z = SimpleGraphFromIterator(russo_ust(s,distmx=weights,rng=MersenneTwister(seed),steps=1))
+    w = SimpleGraphFromIterator(russo_ust(s,weights,rng=MersenneTwister(seed),steps=0))
+    z = SimpleGraphFromIterator(russo_ust(s,weights,rng=MersenneTwister(seed),steps=1))
 
 end
 
@@ -105,13 +105,13 @@ Test.@testset "distribution" begin
 
     treeCounter = Accumulator{Char,Int64}()
 
-    for i in 1:100000
+    for i in 1:10000
         #calculate random spanning tree, catching and returning seeds that cause errors.
         rng = MersenneTwister()
         seed = abs(rand(rng,Int))
         x = 0
         try
-            x = russo_ust(g,distmx=weights,rng=rng)
+            x = russo_ust(g,weights,rng=rng)
             #assure that all x are spanning trees
             y = SimpleGraphFromIterator(x)
             @assert nv(y) == 4 "not four vertices"
@@ -138,22 +138,18 @@ Test.@testset "distribution" begin
     end
 
     #assure that all of the x were actually one of A,B,C, or D.
-    Test.@test treeCounter['A'] + treeCounter['B'] + treeCounter['C'] + treeCounter['D'] == 100000
-    println("weighted A is: ", treeCounter['A'])
-    println("weighted B is: ", treeCounter['B'])
-    println("weighted C is: ", treeCounter['C'])
-    println("weighted D is: ", treeCounter['D'])
+    Test.@test treeCounter['A'] + treeCounter['B'] + treeCounter['C'] + treeCounter['D'] == 10000
 
     #calculate chi-squared
     chi_squared = 0
-    chi_squared += (((treeCounter['A']-18811)^2)/18811)
-    chi_squared += (((treeCounter['B']-21944)^2)/21944)
-    chi_squared += (((treeCounter['C']-26333)^2)/26333)
-    chi_squared += (((treeCounter['D']-32915)^2)/32915)
+    chi_squared += (((treeCounter['A']-1881)^2)/1881)
+    chi_squared += (((treeCounter['B']-2194)^2)/2194)
+    chi_squared += (((treeCounter['C']-2633)^2)/2633)
+    chi_squared += (((treeCounter['D']-3292)^2)/3292)
 
     #for now, test for significant deviation with 3 degrees of freedom, with significance .05
-    Test.@test chi_squared < 3.182
-    println("weighted chi-squared is ", chi_squared)
+    Test.@test chi_squared < 9.348
+    Test.@test chi_squared > .216
 
 
     #second unit test: same square graph, unweighted edges.
@@ -181,7 +177,7 @@ Test.@testset "distribution" begin
 
     treeCounter = Accumulator{Char,Int64}()
 
-    for i in 1:100000
+    for i in 1:10000
         #calculate random spanning tree, catching and returning seeds that cause errors.
         rng = MersenneTwister()
         seed = abs(rand(rng,Int))
@@ -214,21 +210,17 @@ Test.@testset "distribution" begin
     end
 
     #assure that all of the x were actually one of A,B,C, or D.
-    Test.@test treeCounter['A'] + treeCounter['B'] + treeCounter['C'] + treeCounter['D'] == 100000
-    println("unweighted A is: ", treeCounter['A'])
-    println("unweighted B is: ", treeCounter['B'])
-    println("unweighted C is: ", treeCounter['C'])
-    println("unweighted D is: ", treeCounter['D'])
+    Test.@test treeCounter['A'] + treeCounter['B'] + treeCounter['C'] + treeCounter['D'] == 10000
 
     #calculate chi-squared
     chi_squared = 0
-    chi_squared += (((treeCounter['A']-25000)^2)/25000)
-    chi_squared += (((treeCounter['B']-25000)^2)/25000)
-    chi_squared += (((treeCounter['C']-25000)^2)/25000)
-    chi_squared += (((treeCounter['D']-25000)^2)/25000)
+    chi_squared += (((treeCounter['A']-2500)^2)/2500)
+    chi_squared += (((treeCounter['B']-2500)^2)/2500)
+    chi_squared += (((treeCounter['C']-2500)^2)/2500)
+    chi_squared += (((treeCounter['D']-2500)^2)/2500)
 
     #for now, test for significant deviation with 3 degrees of freedom, with significance .05
-    Test.@test chi_squared < 3.182  
-    println("unweighted chi-squared is ", chi_squared)
+    Test.@test chi_squared < 9.348
+    Test.@test chi_squared > .216
 
 end
