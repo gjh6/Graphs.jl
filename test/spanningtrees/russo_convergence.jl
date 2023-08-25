@@ -1,9 +1,9 @@
 using Graphs
 using Test
-using Graphs.Russo: russo_ust, ref_trees, HConvergence, edge_distance
+using Graphs.Russo: russo_ust, ref_trees, HConvergence, edge_distance, TConvergence
 using Random
 
-Test.@testset "convergence test 1" begin
+@testset "convergence test 1" begin
 
     rng = MersenneTwister()
     seed = abs(rand(rng,Int))
@@ -24,7 +24,27 @@ Test.@testset "convergence test 1" begin
 
     @test HConvergence(s,interval=100,error=1.0,rng=MersenneTwister(seed)) == 100
 
-    HConvergence(s,interval=5)
+    #HConvergence(s,interval=5,rng=MersenneTwister(seed))
+
+
+end
+
+@testset "Convergence test 2" begin
+    
+    rng = MersenneTwister()
+    seed = abs(rand(rng,Int))
+    #seed = 5442317090176155753
+    println("seed is: ", seed)
+
+    s = ladder_graph(4)
+
+    @test TConvergence(s,1,rng=MersenneTwister(seed)) <= 1
+
+    #println("TConvergence test with t=25 gave epsilon: ", TConvergence(s,25,rng=MersenneTwister(seed)))
+    #println("TConvergence test with t=100 gave epsilon: ", TConvergence(s,100,rng=MersenneTwister(seed)))
+    #println("TConvergence test with t=200 gave epsilon: ", TConvergence(s,200,rng=MersenneTwister(seed)))
+    #println("TConvergence test with t=1000 gave epsilon: ", TConvergence(s,1000,rng=MersenneTwister(seed)))
+
 
 
 end

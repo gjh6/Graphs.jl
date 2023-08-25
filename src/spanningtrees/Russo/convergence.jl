@@ -4,7 +4,7 @@
     HConvergence(g::AbstractGraph, dstmx=weights(g))
 
 Return the convergence time (with Russo's algorithm, (https://www.mdpi.com/1999-4893/11/4/53) of g, 
-an undirected graph with weights distmx. Will print the error and steps taken once every 100 steps. 
+an undirected connected graph with weights distmx. Will print the error and steps taken once every 100 steps. 
 
 ### Optional Arguments
 - `distmx=weights(g)`: a symmetric matrix representing the weights of the graph g. Leave blank for unweighted graphs.
@@ -49,10 +49,12 @@ function HConvergence(
         for tree_ind in 1:20
             for chain1 in 1:4
                 for chain2 in chain1+1:4
-                    err = 0
-                    for i in 1:nv(g)
-                        err += (abs(hists[chain1,tree_ind,i]-hists[chain2,tree_ind,i])/2)/num_intervals
-                    end
+                    #err = 0
+                    #for i in 1:nv(g)
+                        err = simple_variance(hists[chain1,tree_ind,:],num_intervals,
+                                hists[chain2,tree_ind,:],num_intervals)
+                        #err += (abs(hists[chain1,tree_ind,i]-hists[chain2,tree_ind,i])/2)/num_intervals
+                    #end
                     max_err = max(max_err,err)
                 end
             end
@@ -85,4 +87,77 @@ end
 
 function edge_distance(s, ref)
     ne(difference(s,ref)) 
+end
+
+function simple_variance(x::AbstractArray{U},entriesX::Int,y::AbstractArray{U},entriesY::Int) where {U}
+    err = 0
+    for i in eachindex(x)
+        err += abs(((x[i]/entriesX) - (y[i]/entriesY))/2)
+    end
+    return err
+end
+
+function simple_variance(x::AbstractArray{U},y::AbstractArray{U}) where {U}
+    entriesX = accumulate(+,x)
+    entriesX = entriesX[lastindex(entriesX)]
+
+    entriesY = accumulate(+,y)
+    entriesY = entriesY[lastindex(entriesY)]
+
+    err = 0
+    for i in eachindex(x)
+        err += abs(((x[i]/entriesX) - (y[i]/entriesY))/2)
+    end
+    return err
+end
+
+"""
+    TConvergence(g::AbstractGraph, t::Int, distmx=weights(g)
+
+Return the maximum error between any two of four distributions of spanning trees generated 
+on undirected connected graph g. Trees are generated with Russo's algorithm 
+(https://www.mdpi.com/1999-4893/11/4/53), run for t steps. 
+
+###Optional Arguments
+-`distmx=weights(g)`:  a symmetric matrix representing the weights of the graph g. Leave blank for unweighted graphs.
+-`error=.05`: the maximum error allowed between two distributions from the same starting tree before the distribution
+                is considered to be a good enough estimate.
+- `rng=MersenneTwister()`: the rng used throughout the function.
+"""
+function TConvergence(g::AbstractGraph, t::Int, distmx=weights(g); error::Float64=.01,rng=MersenneTwister())
+
+    refTrees = ref_trees(g,distmx,rng=rng)
+    startTrees = refTrees[1:20]
+    R = refTrees[20]
+
+    hists = zeros(20,3,nv(g))
+
+    for tree_ind in 1:20
+        sampled = 0
+        cur_err = typemax(Float64)
+        while cur_err > error
+            for i in 1:2
+                x = russo_ust(g,distmx,steps=t,startingTree=startTrees[tree_ind],rng=rng)
+                x = SimpleDiGraphFromIterator(x)
+                hists[tree_ind,i,edge_distance(x,R)+1] += 1
+            end
+            sampled += 1
+            min_sample = nv(g)*100
+            if sampled > min_sample
+                cur_err = simple_variance(hists[tree_ind,1,:], sampled,
+                                hists[tree_ind,2,:], sampled)
+            end
+        end
+        println(sampled, " ", cur_err)
+        hists[tree_ind,3,:] = hists[tree_ind,1,:] + hists[tree_ind,2,:]
+    end
+
+    max_err = 0
+    for dist1 in 1:20
+        for dist2 in dist1+1:20
+            err = simple_variance(hists[dist1,3,:],hists[dist2,3,:])
+            max_err = max(max_err,err)
+        end
+    end
+    return max_err
 end
