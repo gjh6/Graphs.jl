@@ -215,8 +215,8 @@ function splay!(n::Node)
 end
 
 function pushReversed!(n::Node)
-    if getParent(n) isa Node
-        pushReversed!(getParent(n))
+    if n.parent isa Node
+        pushReversed!(n.parent)
     end
 
     if n.reversed 

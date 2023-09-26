@@ -38,13 +38,13 @@ end
     #seed = 5442317090176155753
     println("seed is: ", seed)
 
-    s = ladder_graph(4)
+    s = ladder_graph(10)
 
     #@test TConvergence(s,1,rng=MersenneTwister(seed)) <= 1
 
     #println("TConvergence test with t=25 gave epsilon: ", TConvergence(s,25,rng=MersenneTwister(seed)))
     #println("TConvergence test with t=100 gave epsilon: ", TConvergence(s,100,rng=MersenneTwister(seed)))
-    #println("TConvergence test with t=200 gave epsilon: ", TConvergence(s,200,rng=MersenneTwister(seed)))
+    println("TConvergence test with t=350 gave epsilon: ", TConvergence(s,350,rng=MersenneTwister(seed)))
     #println("TConvergence test with t=1000 gave epsilon: ", TConvergence(s,1000,rng=MersenneTwister(seed)))
 
     c = cycle_graph(10)
@@ -77,7 +77,7 @@ end
     #println("TConvergence test with t=109 gave epsilon: ", TConvergence(randgraph,109, error=.05,rng=MersenneTwister(seed)))
     #println("TConvergence test with t=25 gave epsilon: ", TConvergence(randgraph,25,rng=MersenneTwister(seed)))
     #println("TConvergece test with t=200 and weights gave epsilon: ", TConvergence(randgraph,200,wmatrix,error=.05,rng=rng))
-    #println("TConvergence test with t=200 gave epsilon: ", TConvergence(randgraph,200,error=.05,rng=MersenneTwister(seed)))
+    #println("TConvergence test with t=200 gave epsilon: ", TConvergence(randgraph,200,error=.05,rng=MersenneTwister(seed),numTrees=4))
     #println("TConvergence test with t=1000 gave epsilon: ", TConvergence(complete,1000,rng=MersenneTwister(seed)))
 
 end

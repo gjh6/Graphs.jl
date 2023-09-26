@@ -114,25 +114,28 @@ end
 """
     TConvergence(g::AbstractGraph, t::Int, distmx=weights(g)
 
-Return the maximum error between any two of four distributions of spanning trees generated 
+Return the maximum error between any two distributions of spanning trees generated 
 on undirected connected graph g. Trees are generated with Russo's algorithm 
 (https://www.mdpi.com/1999-4893/11/4/53), run for t steps. 
 
 ###Optional Arguments
 -`distmx=weights(g)`:  a symmetric matrix representing the weights of the graph g. Leave blank for unweighted graphs.
--`error=.05`: the maximum error allowed between two distributions from the same starting tree before the distribution
+-`error=.01`: the maximum error allowed between two distributions from the same starting tree before the distribution
                 is considered to be a good enough estimate.
 - `rng=MersenneTwister()`: the rng used throughout the function.
+-`numTrees=20`: a number between 2 and 20 (inclusive), the number of different distributions that will be estimated
+-`avgE=false`: if true, take the average of errors between all distributions, instead of the maxiumum.
 """
-function TConvergence(g::AbstractGraph, t::Int, distmx=weights(g); error::Float64=.01,rng=MersenneTwister())
+function TConvergence(g::AbstractGraph, t::Int, distmx=weights(g); 
+    error::Float64=.01,rng=MersenneTwister(),numTrees::Int=20, avgE::Bool=false)
 
     refTrees = ref_trees(g,distmx,rng=rng)
-    startTrees = refTrees[1:20]
+    startTrees = refTrees[1:numTrees]
     R = refTrees[20]
 
-    hists = zeros(20,3,nv(g))
+    hists = zeros(numTrees,3,nv(g))
 
-    for tree_ind in 1:20
+    for tree_ind in 1:numTrees
         sampled = 0
         cur_err = typemax(Float64)
         while cur_err > error
@@ -148,16 +151,24 @@ function TConvergence(g::AbstractGraph, t::Int, distmx=weights(g); error::Float6
                                 hists[tree_ind,2,:], sampled)
             end
         end
-        println(sampled, " ", cur_err)
+        println(tree_ind,": ",sampled, " ", cur_err)
         hists[tree_ind,3,:] = hists[tree_ind,1,:] + hists[tree_ind,2,:]
     end
 
     max_err = 0
-    for dist1 in 1:20
-        for dist2 in dist1+1:20
+    for dist1 in 1:numTrees
+        for dist2 in dist1+1:numTrees
             err = simple_variance(hists[dist1,3,:],hists[dist2,3,:])
-            max_err = max(max_err,err)
+            if avgE
+                #treats max_err as total error
+                max_err+= err
+            else
+                max_err = max(max_err,err)
+            end
         end
+    end
+    if avgE
+        max_err = max_err/numTrees
     end
     return max_err
 end
