@@ -12,6 +12,10 @@ function link_cut_tree end
 
     for n in vertices(g)
         for c in neighbors(g,n)
+            expose!(tree.nodes[c])
+            if getLeft(tree.nodes[c]) isa Node
+                evert!(tree.nodes[c])
+            end
             link!(tree.nodes[c],tree.nodes[n])
         end
     end

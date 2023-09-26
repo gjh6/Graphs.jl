@@ -5,8 +5,8 @@ Return a vector of edges representing a uniform spanning tree (potentially weigh
 of an undirected graph `g` with optional distance matrix (or weights) `distmx` using [Russo's algorithm](https://www.mdpi.com/1999-4893/11/4/53).
 
 ### Optional Arguments
+- `distmx=weights(g)`: symmetric matrix of weights of g
 - `steps=nothing`: gives the heuristic presented in the reference above otherwise specify with an int
-- `distmx=weights(g)`: matrix of weights of g
 - `startingTree=dfs_tree(g)`: any tree (can be directed), which will be modified as in Russo's algorithm.
 - `rng=MersenneTwister()`: An AbstractRNG object used for all random choices.
 """
@@ -14,7 +14,7 @@ of an undirected graph `g` with optional distance matrix (or weights) `distmx` u
 function russo_ust end
 # see https://github.com/mauro3/SimpleTraits.jl/issues/47#issuecomment-327880153 for syntax
 @traitfn function russo_ust(
-    g::AG::(!IsDirected); steps::Union{Nothing, Int}=nothing, distmx::AbstractMatrix{T}=weights(g),
+    g::AG::(!IsDirected), distmx::AbstractMatrix{T}=weights(g); steps::Union{Nothing, Int}=nothing,
     startingTree=dfs_tree(g,1), rng::AbstractRNG=MersenneTwister()
 ) where {T<:Real,U,AG<:AbstractGraph{U}}
 
@@ -30,9 +30,9 @@ function russo_ust end
         startingTree = dfs_tree(startingTree, 1)
     end
 
-    if !(distmx == transpose(distmx))
-        throw(ArgumentError("distmx must be a symmetric matrix."))
-    end
+    #if !(distmx == transpose(distmx))
+    #    throw(ArgumentError("distmx must be a symmetric matrix."))
+    #end
 
     if steps === nothing
         steps = 10*(round(nv(g)^1.3 + ne(g)))
@@ -65,8 +65,13 @@ function russo_ust end
             cumWeight += (1/w)
             append!(pathWeights,[cumWeight])
         end
+        w = distmx[Russo.getVertex(u),Russo.getVertex(v)]
+        cumWeight += (1/w)
         # randSamp = rand()*sum of the weights
-        randSamp = rand(rng)*pathWeights[lastindex(pathWeights)]
+        randSamp = rand(rng)*cumWeight
+        if randSamp > pathWeights[end]
+            continue
+        end
         for i in 1:lastindex(pathWeights)
             if (randSamp > pathWeights[i]) && (randSamp <= pathWeights[i+1])
                 Russo.cut!(D[i+1])

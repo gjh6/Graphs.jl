@@ -1,0 +1,95 @@
+Recreating the sparse graph tests from the Russo paper, with the TConvergence test
+Their sparse graphs were just ladder graphs.
+
+sparse graph 0 (20 vertices, 28 edges)
+0 1.0
+43 0.453
+86 0.097
+129 0.032
+172 0.032
+215 0.024
+258 0.03
+301 0.029
+350 0.031
+
+sparse graph 1 (30 vertices, 43 edges)
+0 1.0
+50 0.651
+100 0.234
+150 0.054
+200 0.025
+250 0.024
+300 0.025
+350 0.025
+
+(repeat with error=.05 instead of .01, much faster to run. I'm gonna use this from now on.)
+
+sparse graph 0 (20 vertices, 28 edges)
+0 1.0
+50 0.308
+100 0.068
+150 0.04
+200 0.038
+250 0.038
+300 0.042
+350 0.044
+
+sparse graph 1 (30 vertices, 43 edges)
+0 1.0
+50 0.663
+100 0.237
+150 0.072
+200 0.035
+250 0.029
+300 0.031
+350 0.036
+
+sparse graph 2 (40 vertices, 58 edges)
+0 1.0
+50 0.881
+100 0.493
+150 0.186
+200 0.073
+250 0.037
+300 0.032
+350 0.033
+
+sparse graph 3 (50 vertices, 73 edges)
+0 1.0
+50 0.986
+100 0.692
+150 0.366
+200 0.179
+250 0.082
+300 0.04
+350 0.029
+
+sparse graph 4 (60 vertices, 88 edges)
+0 1.0
+50 0.995
+100 0.799
+150 0.492
+200 0.297
+250 0.19
+300 0.099
+350 0.054
+
+sparse graph 5 (35 vertices, 103 edges)
+0 1.0
+50 1.0
+100 0.932
+150 0.69
+200 0.467
+250 0.274
+300 0.177
+350 0.099
+
+sparse graph 6 (80 vertices, 118 edges)
+0 1.0
+50 1.0
+100 0.976
+150 0.82
+200 0.574
+250 0.385
+300 0.266
+350 0.16
