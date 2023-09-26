@@ -45,26 +45,32 @@ end
 function parents(f::linkCutTree{T}) where {T<:Integer}
     nodes = copy(f.nodes)
     p = Vector{T}(undef,length(f.nodes))
+    visited = Vector{Bool}([false for _ = 1:length(nodes)])
 
-    while length(nodes) > 0
-        r = findSplayRoot(nodes[1])
+    pos = 1
+    while pos <= length(nodes)
+        while pos <= length(nodes) && visited[pos] 
+            pos += 1
+        end
+        if pos > length(nodes)
+            break
+        end
+        r = findSplayRoot(nodes[pos])
         s = traverseSubtree(r)
-        if getPathParent(r) isa Node
-            p[getVertex(s[1])] = getVertex(getPathParent(r))
+        if r.pathParent isa Node
+            p[s[1].vertex] = r.pathParent.vertex
         else
-            p[getVertex(s[1])] = getVertex(s[1])
+            p[s[1].vertex] = s[1].vertex
         end
-        
         for i in 2:lastindex(s)
-            p[getVertex(s[i])] = getVertex(s[i-1])
+            p[s[i].vertex] = s[i-1].vertex
         end
-
-        setdiff!(nodes,s)        
-
+        for n in s
+            visited[n.vertex] = true
+        end
     end
 
     return p
-
 end
 
 "Returns a vector of the current subtree that n is in, in order of depth on the represented tree."
